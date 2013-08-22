@@ -42,8 +42,6 @@ do_daily_task() {
 }
 
 main() {
-    trap 'clean_up_on_exit' EXIT
-    local COOKIE_FILE="$(mktemp "${TMPDIR-/tmp}/cookie-lightnovel.XXXXXXXXXX")"
     local username
     local password
     if [ $# -eq 2 ]; then
@@ -55,8 +53,10 @@ main() {
         username="$USERNAME"
         password="$PASSWORD"
     else
-        die '%s\n' "${0} [your_username] [your_password]"
+        die "Usage: $(basename "${0}") [your_username] [your_password]"
     fi
+    trap 'clean_up_on_exit' EXIT
+    local COOKIE_FILE="$(mktemp "${TMPDIR-/tmp}/cookie-lightnovel.XXXXXXXXXX")"
     printf 'Getting cookie...\n'
     get_cookie "$username" "$password"
     printf 'Doing daily task...\n'
