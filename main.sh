@@ -28,9 +28,9 @@ load_config() {
 }
 
 get_cookie() {
-    curl -s -c "$COOKIE_FILE" -A "$USER_AGENT" -d "username=${USERNAME}&password=${PASSWORD}" \
+    curl -s -c "$COOKIE_FILE" -A "$USER_AGENT" -d "username=${1}&password=${2}" \
         'http://www.lightnovel.cn/member.php?mod=logging&action=login&loginsubmit=yes' | \
-        iconv -f GB18030 -t UTF8 | grep -q -F "$USERNAME" || \
+        iconv -f GB18030 -t UTF8 | grep -q -F "${1}，现在将转入登录前页面" || \
             die 'Cannot get cookie!'
 }
 
@@ -44,10 +44,21 @@ do_daily_task() {
 main() {
     trap 'clean_up_on_exit' EXIT
     local COOKIE_FILE="$(mktemp "${TMPDIR-/tmp}/cookie-lightnovel.XXXXXXXXXX")"
-    printf 'Loading config...\n'
-    load_config
+    local username
+    local password
+    if [ $# -eq 2 ]; then
+        username="$1"
+        password="$2"
+    elif [ $# -eq 0 ]; then
+        printf 'Loading config...\n'
+        load_config
+        username="$USERNAME"
+        password="$PASSWORD"
+    else
+        die '%s\n' "${0} [your_username] [your_password]"
+    fi
     printf 'Getting cookie...\n'
-    get_cookie
+    get_cookie "$username" "$password"
     printf 'Doing daily task...\n'
     do_daily_task
     printf 'Done\n'
