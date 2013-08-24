@@ -37,7 +37,11 @@ get_cookie() {
 do_daily_task() {
     curl -s -b "$COOKIE_FILE" -A "$USER_AGENT" -e 'http://www.lightnovel.cn/home.php?mod=task&do=view&id=98' \
         'http://www.lightnovel.cn/home.php?mod=task&do=apply&id=98' | \
-        iconv -f GB18030 -t UTF8 | grep -q -F '任务已成功完成' || \
+        iconv -f GB18030 -t UTF8 > /dev/null || \
+            die 'Failed to apply daily task!'
+    curl -s -b "$COOKIE_FILE" -A "$USER_AGENT" -e 'http://www.lightnovel.cn/home.php?mod=task&do=view&id=98' \
+        'http://www.lightnovel.cn/home.php?mod=task&do=draw&id=98' | \
+        iconv -f GB18030 -t UTF8 | grep -q -F '恭喜您，任务已成功完成' || \
             die 'Failed to do daily task!'
 }
 
@@ -56,7 +60,7 @@ main() {
         die "Usage: $(basename "${0}") [your_username] [your_password]"
     fi
     trap 'clean_up_on_exit' EXIT
-    local COOKIE_FILE="$(mktemp "${TMPDIR-/tmp}/cookie-lightnovel.XXXXXXXXXX")"
+    COOKIE_FILE="$(mktemp "${TMPDIR-/tmp}/cookie-lightnovel.XXXXXXXXXX")"
     printf 'Getting cookie...\n'
     get_cookie "$username" "$password"
     printf 'Doing daily task...\n'
