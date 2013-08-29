@@ -35,11 +35,11 @@ get_cookie() {
 }
 
 do_daily_task() {
-    curl -s -b "$COOKIE_FILE" -A "$USER_AGENT" -e 'http://www.lightnovel.cn/home.php?mod=task&do=view&id=98' \
+    curl -s -b "$COOKIE_FILE" -c "$COOKIE_FILE" -A "$USER_AGENT" -e 'http://www.lightnovel.cn/home.php?mod=task&do=view&id=98' \
         'http://www.lightnovel.cn/home.php?mod=task&do=apply&id=98' | \
         iconv -f GB18030 -t UTF8 > /dev/null || \
             die 'Failed to apply daily task!'
-    curl -s -b "$COOKIE_FILE" -A "$USER_AGENT" -e 'http://www.lightnovel.cn/home.php?mod=task&do=view&id=98' \
+    curl -s -b "$COOKIE_FILE" -c "$COOKIE_FILE" -A "$USER_AGENT" -e 'http://www.lightnovel.cn/home.php?mod=task&do=view&id=98' \
         'http://www.lightnovel.cn/home.php?mod=task&do=draw&id=98' | \
         iconv -f GB18030 -t UTF8 | grep -q -F '恭喜您，任务已成功完成' || \
             die 'Failed to do daily task!'
